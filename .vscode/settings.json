@@ -1,0 +1,7 @@
+{
+    "python.pythonPath": "/Users/rebeccaceppas/opt/miniconda3/bin/python",
+    "python.linting.pylintArgs":[
+        "--extension-pkg-whitelist=pygame",
+        "--erros-only"
+  ]
+}
