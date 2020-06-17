@@ -5,7 +5,7 @@ import math
 background_colour = (255,255,255)
 (width, height) = (400, 400)
 drag = 0.999
-elasticity = 0.75
+elasticity = 0.80
 gravity = (math.pi, 0.002)
 
 
@@ -24,6 +24,31 @@ def find_particle(particles, x, y):
     for p in particles:
         if math.hypot(p.x - x, p.y - y) <= p.size:
             return p
+
+def collide(p1, p2):
+
+    dx = p1.x - p2.x
+    dy = p1.y - p2.y
+
+    distance = math.hypot(dx, dy)
+    if distance < p1.size + p2.size:
+        tangent = math.atan2(dy, dx)
+        angle = math.pi/2 + tangent
+        
+        angle1 = 2 * tangent - p1.angle
+        angle2 = 2 * tangent - p2.angle
+        
+        speed1 = p2.speed * elasticity
+        speed2 = p1.speed * elasticity
+        
+        (p1.angle, p1.speed) = (angle1, speed1)
+        (p2.angle, p2.speed) = (angle2, speed2)
+
+        p1.x += math.sin(angle)
+        p1.y -= math.cos(angle)
+        p2.x -= math.sin(angle)
+        p2.y += math.cos(angle)
+
 
 class Particle():
 
@@ -77,7 +102,7 @@ for n in range(number_of_particles):
     size = random.randint(10,20)
     position = (random.randint(size, width - size), random.randint(size, height - size))
     particle = Particle(position, size)
-    particle.speed = random.random()
+    particle.speed = 2 * random.random()
     particle.angle = random.uniform(0, math.pi * 2)
     my_particles.append(particle)
 
@@ -103,10 +128,11 @@ while running:
 
     screen.fill(background_colour)
 
-    for particle in my_particles:
-        if particle != selected_particle:
-            particle.move()
-            particle.bounce()
+    for i, particle in enumerate(my_particles):
+        particle.move()
+        particle.bounce()
+        for particle2 in my_particles[i+1:]:
+            collide(particle, particle2)
         particle.display()
         
     pygame.display.flip()
