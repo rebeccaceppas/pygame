@@ -2,14 +2,16 @@ import pygame
 import PyParticles
 
 pygame.display.set_caption('Tutorial 10')
-dimensions = (400, 400)
-screen = pygame.display.set_mode(dimensions)
-env = PyParticles.Environment(dimensions)
+(width, height) = (400, 400)
+screen = pygame.display.set_mode((width, height))
+env = PyParticles.Environment((width, height))
 
 env.add_particles(5)
+# or -> env.add_particles(x=200, y=250, size=10, speed=4, angle=0)
 
-running = True
 selected_particle = None
+running = True
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

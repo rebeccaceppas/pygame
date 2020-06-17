@@ -64,13 +64,14 @@ class Particle:
         self.y -= math.cos(self.angle) * self.speed
         self.speed *= self.drag
 
-    def mouse_move(self, x, y):
+    def mouse_move(self, position):
 
         """ Change angle and speed to move towards a given point """
 
+        x, y = position
         dx = x - self.x
         dy = y - self.y
-        self.angle = 0.5*math.pi + math.atan2(dy, dx)
+        self.angle = math.pi/2 + math.atan2(dy, dx)
         self.speed = math.hypot(dx, dy) * 0.1
 
 class Environment:
@@ -87,22 +88,21 @@ class Environment:
         self.acceleration = None
 
 
-    def add_particles(self, n=1, **kargs):
+    def add_particles(self, n=1, **kwargs):
 
         ''' Add n particles with properties given by keyword arguments '''
 
         for i in range(n):
-            size = kargs.get('size', random.randint(10,20))
-            mass = kargs.get('mass', random.randint(100, 10000))
-            x = kargs.get('x', random.uniform(size, self.width - size))
-            y = kargs.get('y', random.uniform(size, self.height - size))
-            position = (x, y)
+            size = kwargs.get('size', random.randint(10,20))
+            mass = kwargs.get('mass', random.randint(100, 10000))
+            x = kwargs.get('x', random.uniform(size, self.width - size))
+            y = kwargs.get('y', random.uniform(size, self.height - size))
 
-            p = Particle(position, size, mass)
+            p = Particle((x,y), size, mass)
             
-            p.speed = kargs.get('speed', random.random())
-            p.angle = kargs.get('angle', random.uniform(0, math.pi*2))
-            p.colour = kargs.get('colour', (0, 0, 255))
+            p.speed = kwargs.get('speed', random.random())
+            p.angle = kwargs.get('angle', random.uniform(0, math.pi*2))
+            p.colour = kwargs.get('colour', (0, 0, 255))
             p.drag = (p.mass/(p.mass + self.mass_of_air)) ** p.size
 
             self.particles.append(p)
@@ -111,14 +111,14 @@ class Environment:
 
         ''' Moves particles and tests for collisions '''
 
-        for i, p in enumerate(self.particles):
-            p.move()
-            self.bounce(p)
+        for i, p1 in enumerate(self.particles):
+            p1.move()
+            self.bounce(p1)
             for p2 in self.particles[i+1:]:
-                collide(p, p2)
+                collide(p1, p2)
 
 
-    def bounce(self):
+    def bounce(self, p):
 
         ''' Tests whether a particle has hit a boundary '''
         
@@ -142,10 +142,11 @@ class Environment:
             p.speed *= self.elasticity
     
 
-    def find_particle(self, x, y):
+    def find_particle(self, position):
 
         ''' Returns particle that occupies position (x, y) '''
         
+        x, y = position
         for p in self.particles:
             if math.hypot(p.x - x, p.y - y) <= p.size:
                 return p
