@@ -4,9 +4,9 @@ import math
 
 background_colour = (255,255,255)
 (width, height) = (400, 400)
-drag = 0.999
-elasticity = 0.80
+elasticity = 0.75
 gravity = (math.pi, 0.002)
+mass_of_air = 0.2
 
 
 def add_vectors(v1, v2):
@@ -34,31 +34,33 @@ def collide(p1, p2):
     if distance < p1.size + p2.size:
         tangent = math.atan2(dy, dx)
         angle = math.pi/2 + tangent
+        total_mass = p1.mass + p2.mass
         
-        angle1 = 2 * tangent - p1.angle
-        angle2 = 2 * tangent - p2.angle
+        (p1.angle, p1.speed) = add_vectors((p1.angle, p1.speed*(p1.mass-p2.mass)/total_mass), (angle, 2*p2.speed*p2.mass/total_mass))
+        (p2.angle, p2.speed) = add_vectors((p2.angle, p2.speed*(p2.mass-p1.mass)/total_mass), (angle+math.pi, 2*p1.speed*p1.mass/total_mass))
         
-        speed1 = p2.speed * elasticity
-        speed2 = p1.speed * elasticity
-        
-        (p1.angle, p1.speed) = (angle1, speed1)
-        (p2.angle, p2.speed) = (angle2, speed2)
+        p1.speed *= elasticity
+        p2.speed *= elasticity
 
-        p1.x += math.sin(angle)
-        p1.y -= math.cos(angle)
-        p2.x -= math.sin(angle)
-        p2.y += math.cos(angle)
+        overlap = 0.5*(p1.size + p2.size - distance + 1)
+        p1.x += math.sin(angle) * overlap
+        p1.y -= math.cos(angle) * overlap
+        p2.x -= math.sin(angle) * overlap
+        p2.y += math.cos(angle) * overlap
 
 
 class Particle():
 
-    def __init__(self, position, size):
+    def __init__(self, position, size, mass=1):
         self.x, self.y = position
         self.size = size
+        self.mass = mass
         self.colour = (0, 0, 255)
         self.thickness = 1
         self.speed = 0
         self.angle = 0
+        self.drag = (self.mass/(self.mass + mass_of_air)) ** self.size
+
         
     def display(self):
         pygame.draw.circle(screen, self.colour, (int(self.x), int(self.y)), self.size, self.thickness)
@@ -67,7 +69,7 @@ class Particle():
         (self.angle, self.speed) = add_vectors((self.angle, self.speed), gravity)
         self.x += math.sin(self.angle) * self.speed
         self.y -= math.cos(self.angle) * self.speed
-        self.speed *= drag
+        self.speed *= self.drag
 
     def bounce(self):
         
@@ -100,8 +102,12 @@ my_particles = []
 
 for n in range(number_of_particles):
     size = random.randint(10,20)
+    density = random.randint(1,20)
     position = (random.randint(size, width - size), random.randint(size, height - size))
-    particle = Particle(position, size)
+
+    particle = Particle(position, size, density * size ** 2)
+
+    particle.colour = (200 - density * 10, 200 - density * 10, 255)    
     particle.speed = 2 * random.random()
     particle.angle = random.uniform(0, math.pi * 2)
     my_particles.append(particle)
