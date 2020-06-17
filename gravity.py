@@ -49,7 +49,7 @@ def collide(p1, p2):
         p2.y += math.cos(angle) * overlap
 
 
-class Particle():
+class Particle:
 
     def __init__(self, position, size, mass=1):
         self.x, self.y = position
