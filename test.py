@@ -1,13 +1,14 @@
 import pygame
 import PyParticles
+import math
 
 pygame.display.set_caption('Tutorial 10')
 (width, height) = (400, 400)
 screen = pygame.display.set_mode((width, height))
 env = PyParticles.Environment((width, height))
-
+env.add_functions(['move','accelerate','drag', 'bounce', 'collide'])
+env.acceleration = (math.pi, 0.002)
 env.add_particles(5)
-# or -> env.add_particles(x=200, y=250, size=10, speed=4, angle=0)
 
 selected_particle = None
 running = True

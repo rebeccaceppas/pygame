@@ -59,9 +59,19 @@ class Particle:
 
         ''' Updates position based on speed, angle and drag '''
 
-        #(self.angle, self.speed) = add_vectors((self.angle, self.speed), gravity)
         self.x += math.sin(self.angle) * self.speed
         self.y -= math.cos(self.angle) * self.speed
+        self.speed *= self.drag
+
+    def accelerate(self, vector):
+
+        ''' Change angle and speed by a given vector '''
+
+        (self.angle, self.speed) = add_vectors((self.angle, self.speed), vector)
+
+    def experience_drag(self):
+
+        ''' Slow particle down through drag '''
         self.speed *= self.drag
 
     def mouse_move(self, position):
@@ -85,7 +95,28 @@ class Environment:
         self.colour = (255,255,255)
         self.mass_of_air = 0.2
         self.elasticity = 0.75
-        self.acceleration = None
+        self.acceleration = (0,0)
+
+        self.particle_functions1 = []
+        self.particle_functions2 = []
+        self.functions_dict = {
+            'move': (1, lambda p: p.move()),
+            'drag': (1, lambda p: p.experience_drag()),
+            'bounce': (1, lambda p: self.bounce(p)),
+            'accelerate': (1, lambda p: p.accelerate(self.acceleration)),
+            'collide': (2, lambda p1, p2: collide(p1, p2))
+        }
+
+    def add_functions(self, function_list):
+        for func in function_list:
+            (n, f) = self.functions_dict.get(func, (-1, None))
+            if n == 1:
+                self.particle_functions1.append(f)
+            elif n == 2:
+                self.particle_functions2.append(f)
+            else:
+                print('No such function %s' % f)
+
 
 
     def add_particles(self, n=1, **kwargs):
@@ -111,11 +142,12 @@ class Environment:
 
         ''' Moves particles and tests for collisions '''
 
-        for i, p1 in enumerate(self.particles):
-            p1.move()
-            self.bounce(p1)
-            for p2 in self.particles[i+1:]:
-                collide(p1, p2)
+        for i, particle in enumerate(self.particles):
+            for f in self.particle_functions1:
+                f(particle)
+            for particle2 in self.particles[i+1:]:
+                for f in self.particle_functions2:
+                    f(particle, particle2)
 
 
     def bounce(self, p):
