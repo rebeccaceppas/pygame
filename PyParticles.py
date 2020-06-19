@@ -40,11 +40,14 @@ def collide(p1, p2):
         p2.y += math.cos(angle) * overlap
 
 def combine(p1, p2):
+
+    ''' Combines two particles if they overlap, changes velocity and mass accordingly '''
+
     if math.hypot(p1.x - p2.x, p1.y, p2.y) < p1.size + p2.size:
         total_mass = p1.mass + p2.mass
         p1.x = (p1.x * p1.mass + p2.x * p2.mass) / total_mass
         p1.y = (p1.y * p1.mass + p2.y * p2.mass) / total_mass
-        (p1.angle, p1.speed) = add_vectors((p1.angle, p1.speed * p1.mass / total_mass), p2.angle, p2.speed * p2.mass / total_mass)
+        (p1.angle, p1.speed) = add_vectors((p1.angle, p1.speed * p1.mass / total_mass), (p2.angle, p2.speed * p2.mass / total_mass))
         p1.speed *= (p1.elasticity * p2.elasticity)
         p1.mass += p2.mass
         p1.collide_with = p2
@@ -95,12 +98,18 @@ class Particle:
         self.speed = math.hypot(dx, dy) * 0.1
 
     def attract(self, other):
+
+        ''' Creates gravitational attraction between all particles '''
+
         dx = self.x - other.x
         dy = self.y - other.y
         dist = math.hypot(dx, dy)
 
+        if dist < self.size + other.size:
+            return True
+
         theta = math.atan2(dy, dx)
-        force = 6 * self.mass * other.mass / dist ** 2
+        force = 6 * self.mass * other.mass / (dist ** 2)
 
         self.accelerate((theta - math.pi/2, force / self.mass))
         other.accelerate((theta + math.pi/2, force / other.mass))

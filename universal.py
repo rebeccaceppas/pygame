@@ -35,6 +35,7 @@ while running:
         pygame.draw.circle(screen, p.colour, (int(p.x), int(p.y)), int(p.size), 1)
 
     for p in particles_to_remove:
-        universe.particles.remove(p)
+        if p in universe.particles:
+            universe.particles.remove(p)
 
     pygame.display.flip()
