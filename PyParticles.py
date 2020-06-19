@@ -43,7 +43,7 @@ def combine(p1, p2):
 
     ''' Combines two particles if they overlap, changes velocity and mass accordingly '''
 
-    if math.hypot(p1.x - p2.x, p1.y, p2.y) < p1.size + p2.size:
+    if math.hypot(p1.x - p2.x, p1.y - p2.y) < p1.size + p2.size:
         total_mass = p1.mass + p2.mass
         p1.x = (p1.x * p1.mass + p2.x * p2.mass) / total_mass
         p1.y = (p1.y * p1.mass + p2.y * p2.mass) / total_mass
@@ -109,7 +109,7 @@ class Particle:
             return True
 
         theta = math.atan2(dy, dx)
-        force = 6 * self.mass * other.mass / (dist ** 2)
+        force = 100 * self.mass * other.mass / (dist ** 2)
 
         self.accelerate((theta - math.pi/2, force / self.mass))
         other.accelerate((theta + math.pi/2, force / other.mass))
@@ -136,10 +136,14 @@ class Environment:
             'bounce': (1, lambda p: self.bounce(p)),
             'accelerate': (1, lambda p: p.accelerate(self.acceleration)),
             'collide': (2, lambda p1, p2: collide(p1, p2)),
-            'attract': (2, lambda p1, p2: p1.attract(p2))
+            'attract': (2, lambda p1, p2: p1.attract(p2)),
+            'combine': (2, lambda p1, p2: combine(p1, p2))
         }
 
     def add_functions(self, function_list):
+
+        ''' Adds input functions to respective function list '''
+
         for func in function_list:
             (n, f) = self.functions_dict.get(func, (-1, None))
             if n == 1:

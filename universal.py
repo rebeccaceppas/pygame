@@ -9,7 +9,7 @@ universe.colour = (0, 0, 0)
 universe.add_functions(['move', 'attract', 'combine'])
 
 def calculate_radius(mass):
-    return 6 * mass ** 0.5
+    return 3 * mass ** 0.5
 
 for n in range(100):
     particle_mass = random.randint(1, 5)
@@ -32,7 +32,7 @@ while running:
             p.size = calculate_radius(p.mass)
             del p.__dict__['collide_with']
 
-        pygame.draw.circle(screen, p.colour, (int(p.x), int(p.y)), int(p.size), 1)
+        pygame.draw.circle(screen, p.colour, (int(p.x), int(p.y)), int(p.size), 0)
 
     for p in particles_to_remove:
         if p in universe.particles:
