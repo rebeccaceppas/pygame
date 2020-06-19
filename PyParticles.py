@@ -109,7 +109,7 @@ class Particle:
             return True
 
         theta = math.atan2(dy, dx)
-        force = 100 * self.mass * other.mass / (dist ** 2)
+        force = 50 * self.mass * other.mass / (dist ** 2)
 
         self.accelerate((theta - math.pi/2, force / self.mass))
         other.accelerate((theta + math.pi/2, force / other.mass))
