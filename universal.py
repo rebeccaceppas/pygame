@@ -9,7 +9,7 @@ universe.colour = (0, 0, 0)
 universe.add_functions(['move', 'attract', 'combine'])
 
 def calculate_radius(mass):
-    return 3 * mass ** 0.5
+    return 6 * mass ** 0.5
 
 for n in range(100):
     particle_mass = random.randint(1, 5)
@@ -25,19 +25,16 @@ while running:
     universe.update()
     screen.fill(universe.colour)
 
-    particles_remove = []
+    particles_to_remove = []
     for p in universe.particles:
         if 'collide_with' in p.__dict__:
-            particles_remove.append(p['collide_with'])
+            particles_to_remove.append(p.collide_with)
             p.size = calculate_radius(p.mass)
             del p.__dict__['collide_with']
 
-        if p.size < 2:
-            pygame.draw.rect(screen, p.colour, (int(p.x), int(p.y), 2, 2))  # draw 2x2 rectangles around small particles to distinguish them
-        else:
-            pygame.draw.circle(screen, p.colour, (int(p.x), int(p.y)), int(p.size), 0)
+        pygame.draw.circle(screen, p.colour, (int(p.x), int(p.y)), int(p.size), 1)
 
-    for p in particles_remove:
+    for p in particles_to_remove:
         universe.particles.remove(p)
 
     pygame.display.flip()
